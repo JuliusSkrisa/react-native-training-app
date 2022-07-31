@@ -1,5 +1,5 @@
 export default {
-  welcome: 'Welcome to React Native reactNativeTrainingApp by TheCodingMachine',
+  welcome: 'Welcome to the training react native app.',
   actions: {
     continue: 'Continue',
   },
