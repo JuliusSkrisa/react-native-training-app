@@ -4,14 +4,14 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
 } from 'react-native'
 import { useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@/Hooks'
-import { addTask, Todo, TodoState } from '@/Store/ToDo/'
+import { addTask, updateTask, removeTask, Todo, TodoState } from '@/Store/ToDo/'
 import { useSelector } from 'react-redux'
 import { FlatList } from 'react-native-gesture-handler'
+import { Colors } from '@/Theme/Variables'
 
 const TodoContainer = () => {
   const { t } = useTranslation()
@@ -22,11 +22,16 @@ const TodoContainer = () => {
 
 
   const dispatchAddTask = (name: string) => {
-    dispatch(addTask({ name, done: false, id: Date. now() }))
+    dispatch(addTask({ name, done: false, id: Date.now() * Math.random() * 100 }))
+    setNewTodo('');
   }
 
-  const disspatchEditTask = (task: Todo) => {
-    dispatch(addTask(task))
+  const dispatchUpdateTask = (task: Todo) => {
+    dispatch(updateTask(task))
+  }
+
+  const disspatchRemoveTask = (task: Todo) => {
+    dispatch(removeTask(task))
   }
 
    // Get current todo list from the store
@@ -35,12 +40,12 @@ const TodoContainer = () => {
   )
 
   return (
-    <ScrollView
-      style={Layout.fill}
-      contentContainerStyle={[
+    <View
+      style={[
         Layout.fill,
         Layout.colCenter,
         Gutters.smallHPadding,
+        { backgroundColor: Colors.white }
       ]}
     >
       <View
@@ -55,46 +60,52 @@ const TodoContainer = () => {
       </View>
       <FlatList showsHorizontalScrollIndicator={false}
         data={todoList.todo}
-        keyExtractor={item => item.name}
+        keyExtractor={item => item.id.toString()}
         renderItem={({ item }) =>
+        <View style={[Layout.row, Layout.justifyContentBetween]}>
           <TouchableOpacity
-          style={
-          item.done == true
-          // style when button is selected
-          ? {
-          margin: 5, borderRadius: 2,backgroundColor: '#e1601f',
-          }
-          // style when button is unSelected
-          : {
-          margin: 5, borderRadius: 2, backgroundColor: '#ffffff',
-          }
-          }
+          style={[
+            Common.button.rounded,
+            Gutters.regularBMargin,
+            item.done == true ? {  backgroundColor: Colors.success } : { backgroundColor: Colors.error }
+          ]}
           // onPress will call the function when button is clicked
           onPress={() => { 
-            item.done = !item.done; 
-            disspatchEditTask(item);
+            dispatchUpdateTask({...item, done: !item.done});
           }}>
             <Text style={Fonts.textRegular}>{item.name}</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+          style={[
+            Common.button.rounded,
+            Gutters.regularBMargin,
+            Gutters.regularLMargin
+          ]}
+          // onPress will call the function when button is clicked
+          onPress={() => { 
+            disspatchRemoveTask(item);
+          }}>
+            <Text style={Fonts.textRegular}>X</Text>
+          </TouchableOpacity>
+        </View>
         } 
       />
       <Text style={[Fonts.textRegular, Gutters.smallBMargin]}>New Task :</Text>
 
       <TextInput
           onChangeText={setNewTodo}
-          maxLength={1}
           value={newTodo}
           selectTextOnFocus
-          style={[Layout.fill, Common.textInput]}
+          style={[Layout.fullWidth, Common.textInput]}
         />
 
       <TouchableOpacity
-        style={[Common.button.rounded, Gutters.regularBMargin]}
+        style={[Common.button.rounded, Gutters.regularBMargin, { backgroundColor: Colors.success }]}
         onPress={() => dispatchAddTask(newTodo)}
       >
-        <Text style={Fonts.textRegular}>Add new</Text>
+        <Text style={[Fonts.textRegular, { color: Colors.white }]}>Add</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </View>
   )
 }
 
